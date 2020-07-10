@@ -4,6 +4,8 @@
 
 Allows you to get release information by: release id, tag, commit SHA (current commit or specified).
 
+If release not found finishes with error.
+
 ## Inputs
 
 Specify 1 input from the list to search release by:
