@@ -1,0 +1,25 @@
+{
+  "name": "git-get-release-action",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Get information about GitHub release",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc",
+    "pack": "ncc build",
+    "all": "npm run build && npm run pack"
+  },
+  "author": "cardinalby",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/exec": "^1.0.4",
+    "@actions/github": "^2.1.1",
+    "github-actions-utils": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.12",
+    "@zeit/ncc": "^0.20.5",
+    "typescript": "^3.6.4"
+  }
+}

@@ -1,1 +1,44 @@
-# git-get-release-action
+![Build Status](https://github.com/cardinalby/git-get-release-action/workflows/build-test/badge.svg)
+
+# Get GitHub release information 
+
+Allows you to get release information by: release id, tag, commit SHA (current commit or specified).
+
+## Inputs
+
+Specify 1 input from the list to search release by:
+
+* `releaseId` Release Id (number)
+* `tag` Tag name
+* `refreshToken` SHA of commit
+
+If no inputs specified, the action will try to get release for the current commit SHA. 
+
+## Env variable
+
+You should set `GITHUB_TOKEN` env variable to enable action to access GitHub API. See example.
+
+## Outputs
+Values from [API](https://docs.github.com/en/rest/reference/repos#releases) response object:
+
+* `html_url`
+* `upload_url` can be used to upload assets
+* `tarball_url`
+* `zipball_url`
+* `id`
+* `tag_name`
+* `target_commitish`
+* `name`
+* `draft` contains `true` or `false` string value
+* `prerelease` contains `true` or `false` string value
+* `created_at`
+* `published_at`
+
+## Example usage()
+```yaml
+- uses: cardinalby/git-get-release-action@v1
+  env:
+    GITHUB_TOKEN: ${{ github.token }}
+  with:
+    tag: '1.2.3'    
+```

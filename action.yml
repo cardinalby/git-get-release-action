@@ -1,0 +1,43 @@
+name: 'git-get-release-action'
+description: 'Get information about GitHub release'
+author: 'cardinalby'
+inputs:
+  releaseId:
+    description: 'Release Id (number)'
+    required: false
+  tag:
+    description: 'Tag name'
+    required: false
+  commitSha:
+    description: 'SHA of commit'
+    required: false
+outputs:
+  html_url:
+    description: 'html_url'
+  upload_url:
+    description: 'upload_url'
+  tarball_url:
+    description: 'tarball_url'
+  zipball_url:
+    description: 'zipball_url'
+  id:
+    description: 'id'
+  tag_name:
+    description: 'tag_name'
+  target_commitish:
+    description: 'target_commitish'
+  name:
+    description: 'name'
+  draft:
+    description: 'draft'
+  prerelease:
+    description: 'prerelease'
+  created_at:
+    description: 'created_at'
+  published_at:
+    description: 'published_at'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  icon: 'tag'
