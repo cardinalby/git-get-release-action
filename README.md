@@ -12,7 +12,7 @@ Specify 1 input from the list to search release by:
 
 * `releaseId` Release Id (number)
 * `tag` Tag name
-* `refreshToken` SHA of commit
+* `commitSha` SHA of commit
 
 If no inputs specified, the action will try to get release for the current commit SHA. 
 
