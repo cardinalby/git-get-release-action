@@ -62,6 +62,7 @@ function setOutputs(release: Octokit.ReposGetReleaseResponse)
     actionOutputs.tag_name.setValue(release.tag_name);
     actionOutputs.target_commitish.setValue(release.target_commitish);
     actionOutputs.name.setValue(release.name);
+    actionOutputs.body.setValue(release.body);
     actionOutputs.draft.setValue(release.draft);
     actionOutputs.prerelease.setValue(release.prerelease);
     actionOutputs.created_at.setValue(release.created_at);

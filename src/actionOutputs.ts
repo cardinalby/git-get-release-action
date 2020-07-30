@@ -9,6 +9,7 @@ export const actionOutputs = {
     tag_name: new ActionOutput('tag_name'),
     target_commitish: new ActionOutput('target_commitish'),
     name: new ActionOutput('name'),
+    body: new ActionOutput('body'),
     draft: new ActionTrOutput<boolean>('draft', v => v ? 'true' : 'false'),
     prerelease: new ActionTrOutput<boolean>('prerelease', v => v ? 'true' : 'false'),
     created_at: new ActionOutput('created_at'),
