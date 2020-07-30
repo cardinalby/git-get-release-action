@@ -2257,6 +2257,7 @@ function setOutputs(release) {
     actionOutputs_1.actionOutputs.tag_name.setValue(release.tag_name);
     actionOutputs_1.actionOutputs.target_commitish.setValue(release.target_commitish);
     actionOutputs_1.actionOutputs.name.setValue(release.name);
+    actionOutputs_1.actionOutputs.body.setValue(release.body);
     actionOutputs_1.actionOutputs.draft.setValue(release.draft);
     actionOutputs_1.actionOutputs.prerelease.setValue(release.prerelease);
     actionOutputs_1.actionOutputs.created_at.setValue(release.created_at);
@@ -9424,6 +9425,7 @@ exports.actionOutputs = {
     tag_name: new github_actions_utils_1.ActionOutput('tag_name'),
     target_commitish: new github_actions_utils_1.ActionOutput('target_commitish'),
     name: new github_actions_utils_1.ActionOutput('name'),
+    body: new github_actions_utils_1.ActionOutput('body'),
     draft: new github_actions_utils_1.ActionTrOutput('draft', v => v ? 'true' : 'false'),
     prerelease: new github_actions_utils_1.ActionTrOutput('prerelease', v => v ? 'true' : 'false'),
     created_at: new github_actions_utils_1.ActionOutput('created_at'),
