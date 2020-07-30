@@ -31,6 +31,7 @@ Values from [API](https://docs.github.com/en/rest/reference/repos#releases) resp
 * `tag_name`
 * `target_commitish`
 * `name`
+* `body`
 * `draft` contains `true` or `false` string value
 * `prerelease` contains `true` or `false` string value
 * `created_at`
