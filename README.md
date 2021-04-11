@@ -10,11 +10,11 @@ If release not found finishes with error.
 
 Specify 1 input from the list to search release by:
 
-* `releaseId` Release Id (number)
-* `tag` Tag name
-* `commitSha` SHA of commit
-* `releaseName` Release name (returns most recent found)
-* `latest` Set `1` or `true` to get the latest release
+* `releaseId` Release Id (number).
+* `tag` Tag name.
+* `commitSha` SHA of commit. Can be used to find a draft release.
+* `releaseName` Release name. Returns most recent found. Can be used to find a draft release.
+* `latest` Set `1` or `true` to get the latest non-draft release.
 
 If no inputs specified, the action will try to get release for the current commit SHA. 
 
