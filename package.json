@@ -1,6 +1,6 @@
 {
   "name": "git-get-release-action",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": false,
   "description": "Get information about GitHub release",
   "main": "lib/main.js",
@@ -14,12 +14,12 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
-    "@actions/github": "^2.1.1",
+    "@actions/github": "^4.0.0",
     "github-actions-utils": "^1.0.8"
   },
   "devDependencies": {
     "@types/node": "^12.7.12",
-    "@zeit/ncc": "^0.20.5",
+    "@vercel/ncc": "^0.28.2",
     "typescript": "^3.6.4"
   }
 }

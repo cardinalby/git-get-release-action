@@ -13,6 +13,8 @@ Specify 1 input from the list to search release by:
 * `releaseId` Release Id (number)
 * `tag` Tag name
 * `commitSha` SHA of commit
+* `releaseName` Release name (returns most recent found)
+* `latest` Set `1` or `true` to get the latest release
 
 If no inputs specified, the action will try to get release for the current commit SHA. 
 
@@ -39,7 +41,7 @@ Values from [API](https://docs.github.com/en/rest/reference/repos#releases) resp
 
 ## Example usage()
 ```yaml
-- uses: cardinalby/git-get-release-action@v1
+- uses: cardinalby/git-get-release-action@v1.1
   env:
     GITHUB_TOKEN: ${{ github.token }}
   with:
