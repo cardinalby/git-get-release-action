@@ -11,6 +11,12 @@ inputs:
   commitSha:
     description: 'SHA of commit'
     required: false
+  releaseName:
+    description: 'Release name (returns most recent found)'
+    required: false
+  latest:
+    description: 'Set `1` or `true` to get the latest release'
+    required: false
 outputs:
   html_url:
     description: 'html_url'
