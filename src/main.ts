@@ -102,15 +102,20 @@ async function findRelease(
 
 async function* fetchReleases(github: GithubApi, owner: string, repo: string): AsyncGenerator<ReleaseResponse> {
     let page = 1;
+    let i = 0;
     while (true) {
         const releases = (await github.repos.listReleases({ owner, repo, per_page: 30, page})).data;
         if (releases.length === 0) {
-            break;
+            return;
         }
         for (const release of releases) {
             yield release;
+            ++i;
+            if (i >= actionInputs.searchLimit) {
+                return;
+            }
         }
-        page++;
+        ++page;
     }
 }
 

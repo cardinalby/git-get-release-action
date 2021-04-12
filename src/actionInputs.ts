@@ -5,5 +5,6 @@ export const actionInputs = {
     tag: inputs.getString('tag', false),
     commitSha: inputs.getString('commitSha', false),
     releaseName: inputs.getString('releaseName', false),
-    latest: inputs.getBool('latest', false)
+    latest: inputs.getBool('latest', false),
+    searchLimit: inputs.getInt('searchLimit', false) || 90,
 }

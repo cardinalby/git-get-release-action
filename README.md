@@ -16,7 +16,11 @@ Specify 1 input from the list to search release by:
 * `releaseName` Release name. Returns most recent found. Can be used to find a draft release.
 * `latest` Set `1` or `true` to get the latest non-draft release.
 
-If no inputs specified, the action will try to get release for the current commit SHA. 
+If no inputs specified, the action will try to get release for the current commit SHA.
+
+* `searchLimit` Optional, default: `90`. If you use `commitSha` or `releaseName` inputs you can 
+also specify how many releases action should retrieve to perform a search. Specify more than 90 if
+you age going to search for old releases and less if you want to speed up the search.
 
 ## Env variable
 

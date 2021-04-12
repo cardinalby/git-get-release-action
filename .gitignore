@@ -97,3 +97,8 @@ Thumbs.db
 # Ignore built ts files
 __tests__/runner/*
 lib/**/*
+
+
+/.idea/git-get-release-action.iml
+/.idea/modules.xml
+/.idea/workspace.xml
