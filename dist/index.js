@@ -14,7 +14,8 @@ exports.actionInputs = {
     tag: github_actions_utils_1.actionInputs.getString('tag', false),
     commitSha: github_actions_utils_1.actionInputs.getString('commitSha', false),
     releaseName: github_actions_utils_1.actionInputs.getString('releaseName', false),
-    latest: github_actions_utils_1.actionInputs.getBool('latest', false)
+    latest: github_actions_utils_1.actionInputs.getBool('latest', false),
+    searchLimit: github_actions_utils_1.actionInputs.getInt('searchLimit', false) || 90,
 };
 
 
@@ -211,15 +212,20 @@ function findRelease(github, owner, repo, predicate) {
 function fetchReleases(github, owner, repo) {
     return __asyncGenerator(this, arguments, function* fetchReleases_1() {
         let page = 1;
+        let i = 0;
         while (true) {
             const releases = (yield __await(github.repos.listReleases({ owner, repo, per_page: 30, page }))).data;
             if (releases.length === 0) {
-                break;
+                return yield __await(void 0);
             }
             for (const release of releases) {
                 yield yield __await(release);
+                ++i;
+                if (i >= actionInputs_1.actionInputs.searchLimit) {
+                    return yield __await(void 0);
+                }
             }
-            page++;
+            ++page;
         }
     });
 }
