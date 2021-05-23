@@ -82,7 +82,7 @@ function setOutputs(release: ReleaseResponse)
 }
 
 async function findReleaseByCommitSha(github: GithubApi, owner: string, repo: string, sha: string) {
-    return findRelease(github, repo, owner, release => release.target_commitish === sha);
+    return findRelease(github, owner, repo, release => release.target_commitish === sha);
 }
 
 async function findRelease(
