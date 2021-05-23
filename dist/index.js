@@ -184,7 +184,7 @@ function setOutputs(release) {
 }
 function findReleaseByCommitSha(github, owner, repo, sha) {
     return __awaiter(this, void 0, void 0, function* () {
-        return findRelease(github, repo, owner, release => release.target_commitish === sha);
+        return findRelease(github, owner, repo, release => release.target_commitish === sha);
     });
 }
 function findRelease(github, owner, repo, predicate) {
