@@ -43,7 +43,7 @@ Values from [API](https://docs.github.com/en/rest/reference/repos#releases) resp
 * `created_at`
 * `published_at`
 
-## Example usage()
+## Usage example
 ```yaml
 - uses: cardinalby/git-get-release-action@v1.1
   env:
