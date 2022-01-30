@@ -1,0 +1,73 @@
+name: "functional-test"
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+jobs:
+  functionalSelfTest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get 1.1.1 release by tag
+        id: getByTag
+        uses: ./
+        with:
+          tag: 1.1.1
+
+      - name: Check getByTag step result
+        if: |
+          steps.getByTag.outputs.url != 'https://api.github.com/repos/cardinalby/git-get-release-action/releases/41301084' ||
+          steps.getByTag.outputs.assets_url != 'https://api.github.com/repos/cardinalby/git-get-release-action/releases/41301084/assets' ||
+          steps.getByTag.outputs.upload_url != 'https://uploads.github.com/repos/cardinalby/git-get-release-action/releases/41301084/assets{?name,label}' ||
+          steps.getByTag.outputs.html_url != 'https://github.com/cardinalby/git-get-release-action/releases/tag/1.1.1' ||
+          steps.getByTag.outputs.id != '41301084' ||
+          steps.getByTag.outputs.node_id != 'MDc6UmVsZWFzZTQxMzAxMDg0' ||
+          steps.getByTag.outputs.tag_name != '1.1.1' ||
+          steps.getByTag.outputs.target_commitish != 'master' ||
+          steps.getByTag.outputs.name != 'searchLimit input' ||
+          steps.getByTag.outputs.draft != 'false' ||
+          steps.getByTag.outputs.prerelease != 'false' ||
+          steps.getByTag.outputs.created_at != '2021-04-12T19:34:47Z' ||
+          steps.getByTag.outputs.published_at != '2021-04-12T19:37:29Z' ||
+          steps.getByTag.outputs.assets != '[]' ||
+          fromJson(steps.getByTag.outputs.author).id != 2001539 ||
+          steps.getByTag.outputs.tarball_url != 'https://api.github.com/repos/cardinalby/git-get-release-action/tarball/1.1.1' ||
+          steps.getByTag.outputs.zipball_url != 'https://api.github.com/repos/cardinalby/git-get-release-action/zipball/1.1.1' ||
+          steps.getByTag.outputs.body != 'searchLimit input added'
+        shell: bash
+        run: exit 1
+
+      - name: Get 1.1.1 release by releaseId
+        id: getByReleaseId
+        uses: ./
+        with:
+          releaseId: 41301084
+
+      - name: Check getByReleaseId step result
+        if: steps.getByReleaseId.outputs.tag_name != '1.1.1'
+        shell: bash
+        run: exit 1
+
+      - name: Get testTag release by commitSha
+        id: getByСommitSha
+        uses: ./
+        with:
+          commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
+
+      - name: Check getByСommitSha step result
+        if: steps.getByСommitSha.outputs.tag_name != 'testTag'
+        shell: bash
+        run: exit 1
+
+      - name: Get 1.1.1 release by commitSha
+        id: getFinalReleaseByСommitSha
+        uses: ./
+        with:
+          commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
+          prerelease: false
+
+      - name: Check getFinalReleaseByСommitSha step result
+        if: steps.getFinalReleaseByСommitSha.outputs.tag_name != '1.1.1'
+        shell: bash
+        run: exit 1

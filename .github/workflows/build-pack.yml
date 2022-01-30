@@ -1,0 +1,32 @@
+name: "build-pack"
+on:
+  push:
+    branches:
+      - master
+      - 'v*'
+jobs:
+  build:
+    env:
+      PACKED_JS_PATH: 'dist/index.js'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Pack
+        run: npm run pack
+      - name: push
+        uses: github-actions-x/commit@v2.8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Pack with dependencies to ${{ env.PACKED_JS_PATH }}"
+          force-add: 'true'
+          files: ${{ env.PACKED_JS_PATH }}"
+          name: GitHub Action
+          email: action@github.com

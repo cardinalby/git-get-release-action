@@ -14,11 +14,23 @@ inputs:
   releaseName:
     description: 'Release name (returns most recent found)'
     required: false
+  releaseNameRegEx:
+    description: 'Release name regex (returns most recent found)'
+    required: false
   latest:
     description: 'Set `1` or `true` to get the latest release'
     required: false
+  draft:
+    description: 'Filter by specified "draft" flag value. Left empty so as not to filter'
+    required: false
+  prerelease:
+    description: 'Filter by specified "prerelease" flag value. Left empty so as not to filter'
+    required: false
   searchLimit:
     description: 'Optional, default: `90`. If you use `commitSha` or `releaseName` inputs you can also specify how many releases action should retrieve to perform a search'
+    required: false
+  repo:
+    description: 'Repository name in form of "owner/name". Default: current repository.'
     required: false
 outputs:
   html_url:
@@ -45,6 +57,20 @@ outputs:
     description: 'created_at'
   published_at:
     description: 'published_at'
+  url:
+    description: 'url'
+  assets_url:
+    description: 'assets_url'
+  node_id:
+    description: 'node_id'
+  author:
+    description: 'JSON of author object'
+  assets:
+    description: 'JSON of assets object'
+  body_html:
+    description: 'published_at'
+  body_text:
+    description: 'body_text'
 runs:
   using: 'node16'
   main: 'dist/index.js'
