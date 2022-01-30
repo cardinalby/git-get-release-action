@@ -39,10 +39,14 @@ _If no inputs specified, the action will try to get release for the current comm
 With any of inputs above you can also use 2 additional filter inputs:
 
 #### 🔹 `draft`
-Set `true` to search only for draft releases.
+Set `true` to search only for draft releases. <br>
+Set `false` to search only releases that are not draft.
+Leave empty to not check if a release is a draft.
 
 #### 🔹 `prerelease`
-Set `true` to search only for prerelease releases.
+Set `true` to search only for prerelease releases.<br>
+Set `false` to search only releases that are not prerelease.
+Leave empty to not check if a release is a prerelease.
 
 ### Options
 

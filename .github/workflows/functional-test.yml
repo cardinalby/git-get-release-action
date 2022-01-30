@@ -58,6 +58,8 @@ jobs:
         uses: ./
         with:
           commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
+          draft: false
+          prerelease: true
 
       - name: Check getByCommitSha step result
         if: steps.getByCommitSha.outputs.tag_name != 'testTag'
