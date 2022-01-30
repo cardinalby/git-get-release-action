@@ -9,6 +9,8 @@ jobs:
   functionalSelfTest:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Get 1.1.1 release by tag
         id: getByTag
         uses: ./
