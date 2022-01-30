@@ -71,6 +71,7 @@ jobs:
         uses: ./
         with:
           commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
+          draft: false
           prerelease: false
 
       - name: Check getFinalReleaseByCommitSha step result
