@@ -1,4 +1,6 @@
-![Build Status](https://github.com/cardinalby/git-get-release-action/workflows/build-test/badge.svg)
+[![integration-test](https://github.com/cardinalby/git-get-release-action/actions/workflows/integration-test.yml/badge.svg)](https://github.com/cardinalby/git-get-release-action/actions/workflows/integration-test.yml)
+[![functional-test](https://github.com/cardinalby/git-get-release-action/actions/workflows/functional-test.yml/badge.svg)](https://github.com/cardinalby/git-get-release-action/actions/workflows/functional-test.yml)
+[![build-pack](https://github.com/cardinalby/git-get-release-action/actions/workflows/build-pack.yml/badge.svg)](https://github.com/cardinalby/git-get-release-action/actions/workflows/build-pack.yml)
 
 # Get GitHub release information 
 

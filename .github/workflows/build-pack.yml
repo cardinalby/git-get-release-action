@@ -5,7 +5,7 @@ on:
       - master
       - 'v*'
 jobs:
-  build:
+  buildPack:
     env:
       PACKED_JS_PATH: 'dist/index.js'
     runs-on: ubuntu-latest

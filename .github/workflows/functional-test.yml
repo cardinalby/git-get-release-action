@@ -50,24 +50,24 @@ jobs:
         run: exit 1
 
       - name: Get testTag release by commitSha
-        id: getByСommitSha
+        id: getByCommitSha
         uses: ./
         with:
           commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
 
-      - name: Check getByСommitSha step result
-        if: steps.getByСommitSha.outputs.tag_name != 'testTag'
+      - name: Check getByCommitSha step result
+        if: steps.getByCommitSha.outputs.tag_name != 'testTag'
         shell: bash
         run: exit 1
 
       - name: Get 1.1.1 release by commitSha
-        id: getFinalReleaseByСommitSha
+        id: getFinalReleaseByCommitSha
         uses: ./
         with:
           commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
           prerelease: false
 
-      - name: Check getFinalReleaseByСommitSha step result
-        if: steps.getFinalReleaseByСommitSha.outputs.tag_name != '1.1.1'
+      - name: Check getFinalReleaseByCommitSha step result
+        if: steps.getFinalReleaseByCommitSha.outputs.tag_name != '1.1.1'
         shell: bash
         run: exit 1
