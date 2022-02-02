@@ -33,6 +33,19 @@ describe('git-get-release-action', () => {
         expect(assets[0].name).toEqual('github-actions-webext.png');
     });
 
+    it('should not get by id', () => {
+        const res = target.run(options.clone()
+            .setInputs({
+                releaseId: '123456677',
+                doNotFailIfNotFound: 'true'
+            })
+        );
+        expect(res.isSuccess).toEqual(true);
+        expect(res.commands.outputs.id).toBeUndefined();
+        expect(res.commands.errors).toEqual([]);
+        expect(res.commands.warnings).not.toEqual([]);
+    });
+
     test.each([
         ['true',    'true',    false],
         [undefined, undefined, true],
@@ -80,6 +93,19 @@ describe('git-get-release-action', () => {
         } else {
             expect(res.commands.errors).not.toEqual([]);
         }
+    });
+
+    it('should not get by tag', () => {
+        const res = target.run(options.clone()
+            .setInputs({
+                tag: 'fjrefbjhb3j43r3',
+                doNotFailIfNotFound: 'true'
+            })
+        );
+        expect(res.isSuccess).toEqual(true);
+        expect(res.commands.outputs.id).toBeUndefined();
+        expect(res.commands.errors).toEqual([]);
+        expect(res.commands.warnings).not.toEqual([]);
     });
 
     it('should get by releaseName', () => {
