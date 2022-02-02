@@ -11,5 +11,5 @@ export const actionInputs = {
     prerelease: inputs.getBool('prerelease', false),
     searchLimit: inputs.getInt('searchLimit', false) || 90,
     repo: inputs.getString('repo', false),
-    doNotFailIfNotFound: inputs.getBool('doNotFailIfNotFound', false),
+    doNotFailIfNotFound: inputs.getBool('doNotFailIfNotFound', true),
 }

@@ -16,11 +16,11 @@ export async function run(): Promise<void> {
     try {
         await runImpl();
     } catch (error) {
-        if (actionInputs.doNotFailIfNotFound === true && error instanceof NotFoundError) {
+        if (actionInputs.doNotFailIfNotFound && error instanceof NotFoundError) {
             ghActions.warning(error.message);
-            return;
+        } else {
+            ghActions.setFailed(String(error));
         }
-        ghActions.setFailed(String(error));
     }
 }
 

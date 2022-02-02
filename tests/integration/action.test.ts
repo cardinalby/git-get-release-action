@@ -4,7 +4,9 @@ import dotenv from 'dotenv';
 dotenv.config({path: 'tests.env'});
 
 describe('git-get-release-action', () => {
-    const target = RunTarget.jsFile('lib/index.js', 'action.yml');
+    const target = process.env.CI
+        ? RunTarget.mainJs('action.yml')
+        : RunTarget.jsFile('lib/index.js', 'action.yml');
     const options = RunOptions.create({
         env: {
             GITHUB_TOKEN: process.env.GITHUB_TOKEN,
@@ -48,6 +50,7 @@ describe('git-get-release-action', () => {
                 })
             );
             expect(res.isSuccess).toEqual(true);
+            expect(res.commands.errors).toEqual([]);
             if (expectSuccess) {
                 expect(res.commands.outputs.id).toEqual('56669824');
             }
