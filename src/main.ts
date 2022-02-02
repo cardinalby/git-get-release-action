@@ -5,6 +5,7 @@ import { getOctokit, context } from "@actions/github";
 import { GitHub } from '@actions/github/lib/utils';
 import { components } from '@octokit/openapi-types';
 import {findInItems, paginate} from "./paginate";
+import {NotFoundError} from "./NotFoundError";
 
 type GithubApi = InstanceType<typeof GitHub>;
 type ReleaseResponse = components['schemas']['release'];
@@ -15,6 +16,10 @@ export async function run(): Promise<void> {
     try {
         await runImpl();
     } catch (error) {
+        if (actionInputs.doNotFailIfNotFound === true && error instanceof NotFoundError) {
+            ghActions.warning(error.message);
+            return;
+        }
         ghActions.setFailed(String(error));
     }
 }
@@ -90,7 +95,7 @@ function assertRelease(
     release: ReleaseResponse, draft: boolean|undefined, prerelease: boolean|undefined
 ): ReleaseResponse {
     if (!checkRelease(release, draft, prerelease)) {
-        throw new Error(`Found a release with tag = ${release.tag_name}, but it has ` +
+        throw new NotFoundError(`Found a release with tag = ${release.tag_name}, but it has ` +
             `draft=${release.draft} and prerelease=${release.prerelease}`);
     }
     return release;
@@ -105,7 +110,8 @@ async function findReleaseByCommitSha(
     prerelease: boolean|undefined
 ): Promise<ReleaseResponse> {
     let release: ReleaseResponse|undefined;
-    const tag = await findTag(
+    ghActions.info(`Looking for tag with sha == ${sha} ...`);
+    await findTag(
         github, owner, repo,
         async tag => {
             if (tag.commit.sha.toLowerCase() !== sha.toLowerCase()) {
@@ -128,9 +134,6 @@ async function findReleaseByCommitSha(
             }
         }
     );
-    if (tag === undefined) {
-        throw new Error(`Tag with sha == ${sha} not found`);
-    }
     if (release !== undefined) {
         return release;
     }
@@ -200,7 +203,7 @@ async function findRelease(
     if (release !== undefined) {
         return release;
     }
-    throw new Error('Release not found');
+    throw new NotFoundError('Release not found');
 }
 
 async function findTag(
@@ -219,7 +222,7 @@ async function findTag(
     if (tag !== undefined) {
         return tag;
     }
-    throw new Error('Tag not found');
+    throw new NotFoundError('Tag not found');
 }
 
 function getOwnerAndRepo(inputRepoString?: string): {owner: string, repo: string} {

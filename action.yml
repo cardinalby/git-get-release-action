@@ -2,6 +2,7 @@ name: 'git-get-release-action'
 description: 'Get information about GitHub release'
 author: 'cardinalby'
 inputs:
+  # Search by:
   releaseId:
     description: 'Release Id (number)'
     required: false
@@ -20,12 +21,20 @@ inputs:
   latest:
     description: 'Set `1` or `true` to get the latest release'
     required: false
+
+  # Filters:
   draft:
     description: 'Filter by specified "draft" flag value. Left empty so as not to filter'
     required: false
   prerelease:
     description: 'Filter by specified "prerelease" flag value. Left empty so as not to filter'
     required: false
+
+  # Options:
+  doNotFailIfNotFound:
+    description: 'Set `1` or `true` to exit with code 0 if release not found'
+    required: false
+    default: 'false'
   searchLimit:
     description: 'Optional, default: `90`. If you use `commitSha` or `releaseName` inputs you can also specify how many releases action should retrieve to perform a search'
     required: false

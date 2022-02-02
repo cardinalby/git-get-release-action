@@ -50,6 +50,12 @@ Leave empty to not check if a release is a prerelease.
 
 ### Options
 
+#### 🔻 `doNotFailIfNotFound` _Optional, default: `false`_
+
+Set `true` to force the action to finish with success even if release was not found. 
+Can be useful in composite actions, where `continue-on-error` is not available.
+If set, you can examine `id` output to know if release was found.
+
 #### 🔻 `searchLimit` _Optional, default: `90`_
 If you use one of `commitSha`, `releaseName`, 
 `releaseNameRegEx` inputs you can also specify how many releases action should retrieve to perform 

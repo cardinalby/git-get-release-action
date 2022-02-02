@@ -38,16 +38,17 @@ describe('git-get-release-action', () => {
         ['true',    undefined, true]
     ])(
         'should get by tag, prerelease: %s, draft: %s',
-        (prerelease, draft, isSuccess) => {
+        (prerelease, draft, expectSuccess) => {
             const res = target.run(options.clone()
                 .setInputs({
                     tag: 'testTag',
                     prerelease: prerelease,
-                    draft: draft
+                    draft: draft,
+                    doNotFailIfNotFound: 'true'
                 })
             );
-            expect(res.isSuccess).toEqual(isSuccess);
-            if (res.isSuccess) {
+            expect(res.isSuccess).toEqual(true);
+            if (expectSuccess) {
                 expect(res.commands.outputs.id).toEqual('56669824');
             }
         });
