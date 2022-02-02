@@ -1,6 +1,5 @@
 {
   "name": "git-get-release-action",
-  "version": "1.2.0",
   "private": false,
   "description": "Get information about GitHub release",
   "main": "lib/index.js",
