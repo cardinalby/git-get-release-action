@@ -57,7 +57,7 @@ jobs:
         uses: ./
         with:
           releaseId: 123456677
-          doNotFailIfNotFound: true
+          doNotFailIfNotFound: 'true'
 
       - name: Get testTag release by commitSha
         id: getByCommitSha

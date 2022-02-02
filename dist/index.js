@@ -1,6 +1,20 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 9248:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotFoundError = void 0;
+class NotFoundError extends Error {
+}
+exports.NotFoundError = NotFoundError;
+//# sourceMappingURL=NotFoundError.js.map
+
+/***/ }),
+
 /***/ 8366:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -20,6 +34,7 @@ exports.actionInputs = {
     prerelease: github_actions_utils_1.actionInputs.getBool('prerelease', false),
     searchLimit: github_actions_utils_1.actionInputs.getInt('searchLimit', false) || 90,
     repo: github_actions_utils_1.actionInputs.getString('repo', false),
+    doNotFailIfNotFound: github_actions_utils_1.actionInputs.getBool('doNotFailIfNotFound', false),
 };
 //# sourceMappingURL=actionInputs.js.map
 
@@ -123,6 +138,7 @@ const actionInputs_1 = __nccwpck_require__(8366);
 const actionOutputs_1 = __nccwpck_require__(4633);
 const github_1 = __nccwpck_require__(5438);
 const paginate_1 = __nccwpck_require__(7941);
+const NotFoundError_1 = __nccwpck_require__(9248);
 // noinspection JSUnusedLocalSymbols
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -130,6 +146,10 @@ function run() {
             yield runImpl();
         }
         catch (error) {
+            if (actionInputs_1.actionInputs.doNotFailIfNotFound === true && error instanceof NotFoundError_1.NotFoundError) {
+                ghActions.warning(error.message);
+                return;
+            }
             ghActions.setFailed(String(error));
         }
     });
@@ -185,7 +205,7 @@ function checkRelease(release, draft, prerelease) {
 }
 function assertRelease(release, draft, prerelease) {
     if (!checkRelease(release, draft, prerelease)) {
-        throw new Error(`Found a release with tag = ${release.tag_name}, but it has ` +
+        throw new NotFoundError_1.NotFoundError(`Found a release with tag = ${release.tag_name}, but it has ` +
             `draft=${release.draft} and prerelease=${release.prerelease}`);
     }
     return release;
@@ -193,7 +213,8 @@ function assertRelease(release, draft, prerelease) {
 function findReleaseByCommitSha(github, owner, repo, sha, draft, prerelease) {
     return __awaiter(this, void 0, void 0, function* () {
         let release;
-        const tag = yield findTag(github, owner, repo, (tag) => __awaiter(this, void 0, void 0, function* () {
+        ghActions.info(`Looking for tag with sha == ${sha} ...`);
+        yield findTag(github, owner, repo, (tag) => __awaiter(this, void 0, void 0, function* () {
             if (tag.commit.sha.toLowerCase() !== sha.toLowerCase()) {
                 return false;
             }
@@ -211,9 +232,6 @@ function findReleaseByCommitSha(github, owner, repo, sha, draft, prerelease) {
                 return false;
             }
         }));
-        if (tag === undefined) {
-            throw new Error(`Tag with sha == ${sha} not found`);
-        }
         if (release !== undefined) {
             return release;
         }
@@ -248,7 +266,7 @@ function findRelease(github, owner, repo, predicate) {
         if (release !== undefined) {
             return release;
         }
-        throw new Error('Release not found');
+        throw new NotFoundError_1.NotFoundError('Release not found');
     });
 }
 function findTag(github, owner, repo, predicate) {
@@ -257,7 +275,7 @@ function findTag(github, owner, repo, predicate) {
         if (tag !== undefined) {
             return tag;
         }
-        throw new Error('Tag not found');
+        throw new NotFoundError_1.NotFoundError('Tag not found');
     });
 }
 function getOwnerAndRepo(inputRepoString) {
