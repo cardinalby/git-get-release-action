@@ -2,8 +2,7 @@ name: "build-pack"
 on:
   push:
     branches:
-      - master
-      - 'v*'
+      - '*'
 jobs:
   buildPack:
     env:

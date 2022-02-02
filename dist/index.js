@@ -9,6 +9,9 @@
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NotFoundError = void 0;
 class NotFoundError extends Error {
+    constructor(message) {
+        super(message);
+    }
 }
 exports.NotFoundError = NotFoundError;
 //# sourceMappingURL=NotFoundError.js.map
@@ -23,6 +26,7 @@ exports.NotFoundError = NotFoundError;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.actionInputs = void 0;
 const github_actions_utils_1 = __nccwpck_require__(8267);
+const github_1 = __nccwpck_require__(5438);
 exports.actionInputs = {
     releaseId: github_actions_utils_1.actionInputs.getInt('releaseId', false),
     tag: github_actions_utils_1.actionInputs.getString('tag', false),
@@ -34,7 +38,24 @@ exports.actionInputs = {
     prerelease: github_actions_utils_1.actionInputs.getBool('prerelease', false),
     searchLimit: github_actions_utils_1.actionInputs.getInt('searchLimit', false) || 90,
     repo: github_actions_utils_1.actionInputs.getString('repo', false),
-    doNotFailIfNotFound: github_actions_utils_1.actionInputs.getBool('doNotFailIfNotFound', false),
+    doNotFailIfNotFound: github_actions_utils_1.actionInputs.getBool('doNotFailIfNotFound', true),
+    getOwnerAndRepo() {
+        if (exports.actionInputs.repo !== undefined) {
+            let [owner, ...repoParts] = exports.actionInputs.repo.split('/');
+            const repo = repoParts.join('/');
+            if (!(owner.length && repo.length)) {
+                throw new Error('Invalid format of "repo" input. Should be: owner/repo');
+            }
+            return { owner, repo };
+        }
+        return github_1.context.repo;
+    },
+    getFilters() {
+        return {
+            draft: exports.actionInputs.draft,
+            prerelease: exports.actionInputs.prerelease
+        };
+    }
 };
 //# sourceMappingURL=actionInputs.js.map
 
@@ -137,20 +158,25 @@ const ghActions = __importStar(__nccwpck_require__(2186));
 const actionInputs_1 = __nccwpck_require__(8366);
 const actionOutputs_1 = __nccwpck_require__(4633);
 const github_1 = __nccwpck_require__(5438);
-const paginate_1 = __nccwpck_require__(7941);
 const NotFoundError_1 = __nccwpck_require__(9248);
-// noinspection JSUnusedLocalSymbols
+const findReleaseById_1 = __nccwpck_require__(3657);
+const findReleaseByTag_1 = __nccwpck_require__(2374);
+const findReleaseByCommitSha_1 = __nccwpck_require__(7879);
+const findReleaseByName_1 = __nccwpck_require__(9075);
+const findReleaseByNameRegex_1 = __nccwpck_require__(5976);
+const findLatestRelease_1 = __nccwpck_require__(5043);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield runImpl();
         }
         catch (error) {
-            if (actionInputs_1.actionInputs.doNotFailIfNotFound === true && error instanceof NotFoundError_1.NotFoundError) {
+            if (actionInputs_1.actionInputs.doNotFailIfNotFound && error instanceof NotFoundError_1.NotFoundError) {
                 ghActions.warning(error.message);
-                return;
             }
-            ghActions.setFailed(String(error));
+            else {
+                ghActions.setFailed(String(error));
+            }
         }
     });
 }
@@ -161,133 +187,45 @@ function runImpl() {
             throw new Error('GITHUB_TOKEN env variable is not set');
         }
         const github = (0, github_1.getOctokit)(process.env.GITHUB_TOKEN);
-        const repoInfo = getOwnerAndRepo(actionInputs_1.actionInputs.repo);
-        let releaseResponse;
-        if (actionInputs_1.actionInputs.releaseId) {
-            ghActions.info(`Retrieving release with id = ${actionInputs_1.actionInputs.releaseId}...`);
-            releaseResponse = assertRelease((yield github.rest.repos.getRelease(Object.assign(Object.assign({}, repoInfo), { release_id: actionInputs_1.actionInputs.releaseId }))).data, actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else if (actionInputs_1.actionInputs.tag) {
-            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.tag} tag...`);
-            releaseResponse = assertRelease((yield github.rest.repos.getReleaseByTag(Object.assign(Object.assign({}, repoInfo), { tag: actionInputs_1.actionInputs.tag }))).data, actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else if (actionInputs_1.actionInputs.commitSha) {
-            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.commitSha} SHA...`);
-            releaseResponse = yield findReleaseByCommitSha(github, repoInfo.owner, repoInfo.repo, actionInputs_1.actionInputs.commitSha, actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else if (actionInputs_1.actionInputs.releaseName) {
-            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.releaseName} name...`);
-            releaseResponse = yield findReleaseByName(github, repoInfo.owner, repoInfo.repo, actionInputs_1.actionInputs.releaseName, actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else if (actionInputs_1.actionInputs.releaseNameRegEx) {
-            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.releaseNameRegEx} name regex...`);
-            releaseResponse = yield findReleaseByNameRegex(github, repoInfo.owner, repoInfo.repo, new RegExp(actionInputs_1.actionInputs.releaseNameRegEx), actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else if (actionInputs_1.actionInputs.latest) {
-            ghActions.info(`Retrieving the latest release...`);
-            releaseResponse = yield findLatestRelease(github, repoInfo.owner, repoInfo.repo, actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else if (github_1.context.sha) {
-            ghActions.info(`Retrieving release for current commit ${github_1.context.sha}...`);
-            releaseResponse = yield findReleaseByCommitSha(github, repoInfo.owner, repoInfo.repo, github_1.context.sha, actionInputs_1.actionInputs.draft, actionInputs_1.actionInputs.prerelease);
-        }
-        else {
-            throw new Error('No inputs set, context.sha is empty');
-        }
+        const releaseResponse = yield findRelease(github);
         ghActions.info('Release found:');
         console.log(releaseResponse);
         (0, actionOutputs_1.setOutputs)(releaseResponse);
     });
 }
-function checkRelease(release, draft, prerelease) {
-    return ((draft === undefined || release.draft === draft) &&
-        (prerelease === undefined || release.prerelease === prerelease));
-}
-function assertRelease(release, draft, prerelease) {
-    if (!checkRelease(release, draft, prerelease)) {
-        throw new NotFoundError_1.NotFoundError(`Found a release with tag = ${release.tag_name}, but it has ` +
-            `draft=${release.draft} and prerelease=${release.prerelease}`);
-    }
-    return release;
-}
-function findReleaseByCommitSha(github, owner, repo, sha, draft, prerelease) {
+function findRelease(github) {
     return __awaiter(this, void 0, void 0, function* () {
-        let release;
-        ghActions.info(`Looking for tag with sha == ${sha} ...`);
-        yield findTag(github, owner, repo, (tag) => __awaiter(this, void 0, void 0, function* () {
-            if (tag.commit.sha.toLowerCase() !== sha.toLowerCase()) {
-                return false;
-            }
-            try {
-                release = yield findRelease(github, owner, repo, (release) => __awaiter(this, void 0, void 0, function* () { return (release.tag_name === tag.name); }));
-                const meetRequirements = checkRelease(release, draft, prerelease);
-                if (!meetRequirements) {
-                    ghActions.debug(`Release with tag == ${tag.name} doesn't meet ` +
-                        `draft: ${draft}, prerelease: ${prerelease} requirements`);
-                }
-                return meetRequirements;
-            }
-            catch (err) {
-                ghActions.debug(`Release with tag == ${tag.name} not found`);
-                return false;
-            }
-        }));
-        if (release !== undefined) {
-            return release;
+        const repoInfo = actionInputs_1.actionInputs.getOwnerAndRepo();
+        if (actionInputs_1.actionInputs.releaseId) {
+            ghActions.info(`Retrieving release with id = ${actionInputs_1.actionInputs.releaseId}...`);
+            return yield (0, findReleaseById_1.findReleaseById)(github, repoInfo, actionInputs_1.actionInputs.releaseId, actionInputs_1.actionInputs.getFilters());
         }
-        throw new Error('Finding release internal error');
-    });
-}
-function findReleaseByName(github, owner, repo, name, draft, prerelease) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return findRelease(github, owner, repo, (release) => __awaiter(this, void 0, void 0, function* () { return (release.name === name) && checkRelease(release, draft, prerelease); }));
-    });
-}
-function findReleaseByNameRegex(github, owner, repo, nameRegexp, draft, prerelease) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return findRelease(github, owner, repo, (release) => __awaiter(this, void 0, void 0, function* () {
-            return (!!release.name &&
-                nameRegexp.test(release.name) &&
-                checkRelease(release, draft, prerelease));
-        }));
-    });
-}
-function findLatestRelease(github, owner, repo, draft, prerelease) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (draft === undefined && prerelease === undefined) {
-            return (yield github.rest.repos.getLatestRelease({ owner, repo })).data;
+        if (actionInputs_1.actionInputs.tag) {
+            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.tag} tag...`);
+            return yield (0, findReleaseByTag_1.findReleaseByTag)(github, repoInfo, actionInputs_1.actionInputs.tag, actionInputs_1.actionInputs.getFilters());
         }
-        return findRelease(github, owner, repo, (release) => __awaiter(this, void 0, void 0, function* () { return checkRelease(release, draft, prerelease); }));
-    });
-}
-function findRelease(github, owner, repo, predicate) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const release = yield (0, paginate_1.findInItems)((0, paginate_1.paginate)((page) => __awaiter(this, void 0, void 0, function* () { return (yield github.rest.repos.listReleases({ owner, repo, per_page: 30, page })).data; }), actionInputs_1.actionInputs.searchLimit), predicate);
-        if (release !== undefined) {
-            return release;
+        if (actionInputs_1.actionInputs.commitSha) {
+            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.commitSha} SHA...`);
+            return yield (0, findReleaseByCommitSha_1.findReleaseByCommitSha)(github, repoInfo, actionInputs_1.actionInputs.commitSha, actionInputs_1.actionInputs.getFilters());
         }
-        throw new NotFoundError_1.NotFoundError('Release not found');
-    });
-}
-function findTag(github, owner, repo, predicate) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const tag = yield (0, paginate_1.findInItems)((0, paginate_1.paginate)((page) => __awaiter(this, void 0, void 0, function* () { return (yield github.rest.repos.listTags({ owner, repo, per_page: 30, page })).data; }), actionInputs_1.actionInputs.searchLimit), predicate);
-        if (tag !== undefined) {
-            return tag;
+        if (actionInputs_1.actionInputs.releaseName) {
+            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.releaseName} name...`);
+            return yield (0, findReleaseByName_1.findReleaseByName)(github, repoInfo, actionInputs_1.actionInputs.releaseName, actionInputs_1.actionInputs.getFilters());
         }
-        throw new NotFoundError_1.NotFoundError('Tag not found');
-    });
-}
-function getOwnerAndRepo(inputRepoString) {
-    if (inputRepoString !== undefined) {
-        let [owner, ...repoParts] = inputRepoString.split('/');
-        const repo = repoParts.join('/');
-        if (!(owner.length && repo.length)) {
-            throw new Error('Invalid format of "repo" input. Should be: owner/repo');
+        if (actionInputs_1.actionInputs.releaseNameRegEx) {
+            ghActions.info(`Retrieving release by ${actionInputs_1.actionInputs.releaseNameRegEx} name regex...`);
+            return yield (0, findReleaseByNameRegex_1.findReleaseByNameRegex)(github, repoInfo, new RegExp(actionInputs_1.actionInputs.releaseNameRegEx), actionInputs_1.actionInputs.getFilters());
         }
-        return { owner, repo };
-    }
-    return github_1.context.repo;
+        if (actionInputs_1.actionInputs.latest) {
+            ghActions.info(`Retrieving the latest release...`);
+            return yield (0, findLatestRelease_1.findLatestRelease)(github, repoInfo, actionInputs_1.actionInputs.getFilters());
+        }
+        if (github_1.context.sha) {
+            ghActions.info(`Retrieving release for current commit ${github_1.context.sha}...`);
+            return yield (0, findReleaseByCommitSha_1.findReleaseByCommitSha)(github, repoInfo, github_1.context.sha, actionInputs_1.actionInputs.getFilters());
+        }
+        throw new Error('No inputs set, context.sha is empty');
+    });
 }
 //# sourceMappingURL=main.js.map
 
@@ -374,6 +312,340 @@ function findInItems(generator, predicate) {
 }
 exports.findInItems = findInItems;
 //# sourceMappingURL=paginate.js.map
+
+/***/ }),
+
+/***/ 7826:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.assertReleaseFilters = exports.checkReleaseFilters = void 0;
+const NotFoundError_1 = __nccwpck_require__(9248);
+function checkReleaseFilters(release, filters) {
+    return ((filters.draft === undefined || release.draft === filters.draft) &&
+        (filters.prerelease === undefined || release.prerelease === filters.prerelease));
+}
+exports.checkReleaseFilters = checkReleaseFilters;
+function assertReleaseFilters(release, filters) {
+    if (!checkReleaseFilters(release, filters)) {
+        throw new NotFoundError_1.NotFoundError(`Found a release with tag = ${release.tag_name}, but it has ` +
+            `draft=${release.draft} and prerelease=${release.prerelease}`);
+    }
+    return release;
+}
+exports.assertReleaseFilters = assertReleaseFilters;
+//# sourceMappingURL=filtering.js.map
+
+/***/ }),
+
+/***/ 5043:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findLatestRelease = void 0;
+const findReleaseByPredicate_1 = __nccwpck_require__(5254);
+const filtering_1 = __nccwpck_require__(7826);
+function findLatestRelease(github, repoInfo, filters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (filters.draft === undefined && filters.prerelease === undefined) {
+            return (yield github.rest.repos.getLatestRelease(repoInfo)).data;
+        }
+        return (0, findReleaseByPredicate_1.findReleaseByPredicate)(github, repoInfo, (release) => __awaiter(this, void 0, void 0, function* () { return (0, filtering_1.checkReleaseFilters)(release, filters); }));
+    });
+}
+exports.findLatestRelease = findLatestRelease;
+//# sourceMappingURL=findLatestRelease.js.map
+
+/***/ }),
+
+/***/ 7879:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findReleaseByCommitSha = void 0;
+const ghActions = __importStar(__nccwpck_require__(2186));
+const findTagByPredicate_1 = __nccwpck_require__(129);
+const findReleaseByPredicate_1 = __nccwpck_require__(5254);
+const filtering_1 = __nccwpck_require__(7826);
+function findReleaseByCommitSha(github, repoInfo, sha, filters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let release;
+        ghActions.info(`Looking for tag with sha == ${sha} ...`);
+        yield (0, findTagByPredicate_1.findTagByPredicate)(github, repoInfo, (tag) => __awaiter(this, void 0, void 0, function* () {
+            if (tag.commit.sha.toLowerCase() !== sha.toLowerCase()) {
+                return false;
+            }
+            try {
+                release = yield (0, findReleaseByPredicate_1.findReleaseByPredicate)(github, repoInfo, (release) => __awaiter(this, void 0, void 0, function* () { return (release.tag_name === tag.name); }));
+                const meetRequirements = (0, filtering_1.checkReleaseFilters)(release, filters);
+                if (!meetRequirements) {
+                    ghActions.debug(`Release with tag == ${tag.name} doesn't meet ${JSON.stringify(filters)} requirements`);
+                }
+                return meetRequirements;
+            }
+            catch (err) {
+                ghActions.debug(`Release with tag == ${tag.name} not found`);
+                return false;
+            }
+        }));
+        if (release !== undefined) {
+            return release;
+        }
+        throw new Error('Finding release internal error');
+    });
+}
+exports.findReleaseByCommitSha = findReleaseByCommitSha;
+//# sourceMappingURL=findReleaseByCommitSha.js.map
+
+/***/ }),
+
+/***/ 3657:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findReleaseById = void 0;
+const filtering_1 = __nccwpck_require__(7826);
+const NotFoundError_1 = __nccwpck_require__(9248);
+function findReleaseById(github, repoInfo, releaseId, filters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const found = (yield github.rest.repos.getRelease(Object.assign(Object.assign({}, repoInfo), { release_id: releaseId }))).data;
+            return (0, filtering_1.assertReleaseFilters)(found, filters);
+        }
+        catch (err) {
+            if (err instanceof Error && err.status === 404) {
+                throw new NotFoundError_1.NotFoundError(`Release with release id = ${releaseId} not found`);
+            }
+            throw err;
+        }
+    });
+}
+exports.findReleaseById = findReleaseById;
+//# sourceMappingURL=findReleaseById.js.map
+
+/***/ }),
+
+/***/ 9075:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findReleaseByName = void 0;
+const findReleaseByPredicate_1 = __nccwpck_require__(5254);
+const filtering_1 = __nccwpck_require__(7826);
+function findReleaseByName(github, repoInfo, name, filters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (0, findReleaseByPredicate_1.findReleaseByPredicate)(github, repoInfo, (release) => __awaiter(this, void 0, void 0, function* () {
+            return (release.name === name) &&
+                (0, filtering_1.checkReleaseFilters)(release, filters);
+        }));
+    });
+}
+exports.findReleaseByName = findReleaseByName;
+//# sourceMappingURL=findReleaseByName.js.map
+
+/***/ }),
+
+/***/ 5976:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findReleaseByNameRegex = void 0;
+const findReleaseByPredicate_1 = __nccwpck_require__(5254);
+const filtering_1 = __nccwpck_require__(7826);
+function findReleaseByNameRegex(github, repoInfo, nameRegexp, filters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (0, findReleaseByPredicate_1.findReleaseByPredicate)(github, repoInfo, (release) => __awaiter(this, void 0, void 0, function* () {
+            return (!!release.name &&
+                nameRegexp.test(release.name) &&
+                (0, filtering_1.checkReleaseFilters)(release, filters));
+        }));
+    });
+}
+exports.findReleaseByNameRegex = findReleaseByNameRegex;
+//# sourceMappingURL=findReleaseByNameRegex.js.map
+
+/***/ }),
+
+/***/ 5254:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findReleaseByPredicate = void 0;
+const paginate_1 = __nccwpck_require__(7941);
+const actionInputs_1 = __nccwpck_require__(8366);
+const NotFoundError_1 = __nccwpck_require__(9248);
+function findReleaseByPredicate(github, repoInfo, predicate) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const release = yield (0, paginate_1.findInItems)((0, paginate_1.paginate)((page) => __awaiter(this, void 0, void 0, function* () {
+            return (yield github.rest.repos.listReleases(Object.assign(Object.assign({}, repoInfo), { per_page: 30, page }))).data;
+        }), actionInputs_1.actionInputs.searchLimit), predicate);
+        if (release !== undefined) {
+            return release;
+        }
+        throw new NotFoundError_1.NotFoundError('Release not found');
+    });
+}
+exports.findReleaseByPredicate = findReleaseByPredicate;
+//# sourceMappingURL=findReleaseByPredicate.js.map
+
+/***/ }),
+
+/***/ 2374:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findReleaseByTag = void 0;
+const filtering_1 = __nccwpck_require__(7826);
+const NotFoundError_1 = __nccwpck_require__(9248);
+function findReleaseByTag(github, repoInfo, tag, filters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const found = (yield github.rest.repos.getReleaseByTag(Object.assign(Object.assign({}, repoInfo), { tag: tag }))).data;
+            return (0, filtering_1.assertReleaseFilters)(found, filters);
+        }
+        catch (err) {
+            if (err instanceof Error && err.status === 404) {
+                throw new NotFoundError_1.NotFoundError(`Release for tag = ${tag} not found`);
+            }
+            throw err;
+        }
+    });
+}
+exports.findReleaseByTag = findReleaseByTag;
+//# sourceMappingURL=findReleaseByTag.js.map
+
+/***/ }),
+
+/***/ 129:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.findTagByPredicate = void 0;
+const paginate_1 = __nccwpck_require__(7941);
+const actionInputs_1 = __nccwpck_require__(8366);
+const NotFoundError_1 = __nccwpck_require__(9248);
+function findTagByPredicate(github, repoInfo, predicate) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const tag = yield (0, paginate_1.findInItems)((0, paginate_1.paginate)((page) => __awaiter(this, void 0, void 0, function* () {
+            return (yield github.rest.repos.listTags(Object.assign(Object.assign({}, repoInfo), { per_page: 30, page }))).data;
+        }), actionInputs_1.actionInputs.searchLimit), predicate);
+        if (tag !== undefined) {
+            return tag;
+        }
+        throw new NotFoundError_1.NotFoundError('Tag not found');
+    });
+}
+exports.findTagByPredicate = findTagByPredicate;
+//# sourceMappingURL=findTagByPredicate.js.map
 
 /***/ }),
 
