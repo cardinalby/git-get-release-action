@@ -14,8 +14,8 @@ describe('git-get-release-action', () => {
         }
     });
 
-    it('should get by id', () => {
-        const res = target.run(options.clone()
+    it('should get by id', async () => {
+        const res = await target.run(options.clone()
             .setInputs({  releaseId: '56669824' })
         );
         expect(res.isSuccess).toEqual(true);
@@ -33,8 +33,8 @@ describe('git-get-release-action', () => {
         expect(assets[0].name).toEqual('github-actions-webext.png');
     });
 
-    it('should not get by id', () => {
-        const res = target.run(options.clone()
+    it('should not get by id', async () => {
+        const res = await target.run(options.clone()
             .setInputs({
                 releaseId: '123456677',
                 doNotFailIfNotFound: 'true'
@@ -53,8 +53,8 @@ describe('git-get-release-action', () => {
         ['true',    undefined, true]
     ])(
         'should get by tag, prerelease: %s, draft: %s',
-        (prerelease, draft, expectSuccess) => {
-            const res = target.run(options.clone()
+        async (prerelease, draft, expectSuccess) => {
+            const res = await target.run(options.clone()
                 .setInputs({
                     tag: 'testTag',
                     prerelease: prerelease,
@@ -78,8 +78,8 @@ describe('git-get-release-action', () => {
         ['false',   'false',   '1.1.1'],
     ])(
         'should get by commit SHA, prerelease: %s, draft: %s, expected tag: %s',
-        (prerelease, draft, tagName) => {
-        const res = target.run(options.clone()
+        async (prerelease, draft, tagName) => {
+        const res = await target.run(options.clone()
             .setInputs({
                 commitSha: 'e92acb19de8845ad1f3cb6cfab421ac26002d6b6',
                 prerelease: prerelease,
@@ -95,8 +95,8 @@ describe('git-get-release-action', () => {
         }
     });
 
-    it('should not get by tag', () => {
-        const res = target.run(options.clone()
+    it('should not get by tag', async () => {
+        const res = await target.run(options.clone()
             .setInputs({
                 tag: 'fjrefbjhb3j43r3',
                 doNotFailIfNotFound: 'true'
@@ -108,8 +108,8 @@ describe('git-get-release-action', () => {
         expect(res.commands.warnings).not.toEqual([]);
     });
 
-    it('should get by releaseName', () => {
-        const res = target.run(options.clone()
+    it('should get by releaseName', async () => {
+        const res = await target.run(options.clone()
             .setInputs({  releaseName: 'Initial release' })
         );
         expect(res.isSuccess).toEqual(true);
@@ -117,8 +117,8 @@ describe('git-get-release-action', () => {
         expect(res.commands.outputs.tag_name).toEqual('1.0.0');
     });
 
-    it('should get by releaseNameRegEx', () => {
-        const res = target.run(options.clone()
+    it('should get by releaseNameRegEx', async () => {
+        const res = await target.run(options.clone()
             .setInputs({ releaseNameRegEx: 'searchLimit \\w+' })
         );
         expect(res.isSuccess).toEqual(true);
