@@ -70,7 +70,7 @@ jobs:
       - name: Check getByCommitSha step result
         if: |
           steps.getByCommitSha.outputs.tag_name != 'testTag'  ||
-          steps.getByCommitSha.outputs.body != 'test\r\nbody'
+          toJSON(steps.getByCommitSha.outputs.body) != '"test\r\nbody"'
         shell: bash
         run: |
           echo "${{ steps.getByCommitSha.outputs.tag_name }}" &&
