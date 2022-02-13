@@ -68,9 +68,14 @@ jobs:
           prerelease: true
 
       - name: Check getByCommitSha step result
-        if: steps.getByCommitSha.outputs.tag_name != 'testTag'
+        if: |
+          steps.getByCommitSha.outputs.tag_name != 'testTag'  ||
+          steps.getByCommitSha.outputs.body != 'test\r\nbody'
         shell: bash
-        run: exit 1
+        run: |
+          echo "${{ steps.getByCommitSha.outputs.tag_name }}" &&
+          echo "${{ steps.getByCommitSha.outputs.body }}" &&
+          exit 1
 
       - name: Get 1.1.1 release by commitSha
         id: getFinalReleaseByCommitSha

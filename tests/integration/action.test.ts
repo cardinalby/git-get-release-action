@@ -22,7 +22,7 @@ describe('git-get-release-action', () => {
         expect(res.commands.outputs.id).toEqual('56669824');
         expect(res.commands.outputs.tag_name).toEqual('testTag');
         expect(res.commands.outputs.name).toEqual('test release name');
-        expect(res.commands.outputs.body).toEqual('test body');
+        expect(res.commands.outputs.body).toEqual("test\r\nbody");
         expect(res.commands.outputs.draft).toEqual('false');
         expect(res.commands.outputs.prerelease).toEqual('true');
         expect(res.commands.outputs.created_at).toEqual('2021-04-12T19:34:47Z');

@@ -88,9 +88,7 @@ exports.actionOutputs = {
     node_id: new github_actions_utils_1.ActionOutput('node_id'),
     /** The name of the tag. */
     author: new github_actions_utils_1.ActionTrOutput('author', v => JSON.stringify(v)),
-    assets: new github_actions_utils_1.ActionTrOutput('assets', v => JSON.stringify(v)),
-    body_html: new github_actions_utils_1.ActionOutput('body_html'),
-    body_text: new github_actions_utils_1.ActionOutput('body_text')
+    assets: new github_actions_utils_1.ActionTrOutput('assets', v => JSON.stringify(v))
 };
 function setOutputs(release) {
     exports.actionOutputs.html_url.setValue(release.html_url);
@@ -111,8 +109,6 @@ function setOutputs(release) {
     exports.actionOutputs.node_id.setValue(release.node_id);
     exports.actionOutputs.author.setValue(release.author);
     exports.actionOutputs.assets.setValue(release.assets);
-    exports.actionOutputs.body_html.setValue(release.body_html || '');
-    exports.actionOutputs.body_text.setValue(release.body_text || '');
 }
 exports.setOutputs = setOutputs;
 //# sourceMappingURL=actionOutputs.js.map

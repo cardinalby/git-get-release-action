@@ -76,10 +76,6 @@ outputs:
     description: 'JSON of author object'
   assets:
     description: 'JSON of assets object'
-  body_html:
-    description: 'published_at'
-  body_text:
-    description: 'body_text'
 runs:
   using: 'node16'
   main: 'dist/index.js'

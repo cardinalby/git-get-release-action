@@ -24,9 +24,7 @@ export const actionOutputs = {
     author: new ActionTrOutput<components["schemas"]["simple-user"]>
         ('author', v => JSON.stringify(v)),
     assets: new ActionTrOutput<components["schemas"]["release-asset"][]>
-        ('assets', v => JSON.stringify(v)),
-    body_html: new ActionOutput('body_html'),
-    body_text: new ActionOutput('body_text')
+        ('assets', v => JSON.stringify(v))
 }
 
 export function setOutputs(release: ReleaseResponse)
@@ -49,6 +47,4 @@ export function setOutputs(release: ReleaseResponse)
     actionOutputs.node_id.setValue(release.node_id);
     actionOutputs.author.setValue(release.author);
     actionOutputs.assets.setValue(release.assets);
-    actionOutputs.body_html.setValue(release.body_html || '');
-    actionOutputs.body_text.setValue(release.body_text || '');
 }

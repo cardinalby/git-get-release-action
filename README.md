@@ -92,8 +92,6 @@ Values from [API](https://docs.github.com/en/rest/reference/repos#releases) resp
 * `node_id`
 * `author` (JSON with author object)
 * `assets` (JSON with assets object)
-* `body_html`
-* `body_text`
 
 ## Usage example
 
