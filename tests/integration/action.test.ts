@@ -88,7 +88,7 @@ describe('git-get-release-action', () => {
             );
             expect(res.isSuccess).toEqual(tagName !== undefined);
             if (res.isSuccess) {
-                expect(res.commands.outputs.tag_name).toEqual(tagName);
+                expect(tagName).toContain(res.commands.outputs.tag_name);
                 expect(res.commands.errors).toEqual([]);
             } else {
                 expect(res.commands.errors).not.toEqual([]);
