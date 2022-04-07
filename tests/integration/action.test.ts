@@ -71,28 +71,28 @@ describe('git-get-release-action', () => {
 
     test.each([
         ['true',    'true',    undefined],
-        [undefined, undefined, 'testTagDraft'],
-        ['false',   undefined, 'testTagDraft'],
-        [undefined, 'true',    'testTagDraft'],
-        ['true',    undefined, 'testTag'],
-        ['false',   'false',   '1.1.1'],
+        [undefined, undefined, ['testTag', 'testTagDraft', '1.1.1']],
+        ['false',   undefined, ['testTagDraft', '1.1.1']],
+        [undefined, 'true',    ['testTagDraft']],
+        ['true',    undefined, ['testTag']],
+        ['false',   'false',   ['1.1.1']],
     ])(
         'should get by commit SHA, prerelease: %s, draft: %s, expected tag: %s',
         async (prerelease, draft, tagName) => {
-        const res = await target.run(options.clone()
-            .setInputs({
-                commitSha: 'e92acb19de8845ad1f3cb6cfab421ac26002d6b6',
-                prerelease: prerelease,
-                draft: draft
-            })
-        );
-        expect(res.isSuccess).toEqual(tagName !== undefined);
-        if (res.isSuccess) {
-            expect(res.commands.outputs.tag_name).toEqual(tagName);
-            expect(res.commands.errors).toEqual([]);
-        } else {
-            expect(res.commands.errors).not.toEqual([]);
-        }
+            const res = await target.run(options.clone()
+                .setInputs({
+                    commitSha: 'e92acb19de8845ad1f3cb6cfab421ac26002d6b6',
+                    prerelease: prerelease,
+                    draft: draft
+                })
+            );
+            expect(res.isSuccess).toEqual(tagName !== undefined);
+            if (res.isSuccess) {
+                expect(res.commands.outputs.tag_name).toEqual(tagName);
+                expect(res.commands.errors).toEqual([]);
+            } else {
+                expect(res.commands.errors).not.toEqual([]);
+            }
     });
 
     it('should not get by tag', async () => {
