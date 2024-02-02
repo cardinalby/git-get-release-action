@@ -77,7 +77,7 @@ outputs:
   assets:
     description: 'JSON of assets object'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: 'tag'

@@ -31,7 +31,7 @@ describe('git-get-release-action', () => {
         expect(Array.isArray(assets)).toBe(true);
         expect(assets.length).toEqual(1);
         expect(assets[0].name).toEqual('github-actions-webext.png');
-        expect(res.warnings).toHaveLength(0);
+        expect(res.runnerWarnings).toHaveLength(0);
     });
 
     it('should not get by id', async () => {
@@ -45,7 +45,7 @@ describe('git-get-release-action', () => {
         expect(res.commands.outputs.id).toBeUndefined();
         expect(res.commands.errors).toEqual([]);
         expect(res.commands.warnings).not.toEqual([]);
-        expect(res.warnings).toHaveLength(0);
+        expect(res.runnerWarnings).toHaveLength(0);
     });
 
     test.each([
@@ -69,7 +69,7 @@ describe('git-get-release-action', () => {
             if (expectSuccess) {
                 expect(res.commands.outputs.id).toEqual('56669824');
             }
-            expect(res.warnings).toHaveLength(0);
+            expect(res.runnerWarnings).toHaveLength(0);
         });
 
     test.each([
@@ -96,7 +96,7 @@ describe('git-get-release-action', () => {
             } else {
                 expect(res.commands.errors).not.toEqual([]);
             }
-            expect(res.warnings).toHaveLength(0);
+            expect(res.runnerWarnings).toHaveLength(0);
     });
 
     it('should not get by tag', async () => {
@@ -110,7 +110,7 @@ describe('git-get-release-action', () => {
         expect(res.commands.outputs.id).toBeUndefined();
         expect(res.commands.errors).toEqual([]);
         expect(res.commands.warnings).not.toEqual([]);
-        expect(res.warnings).toHaveLength(0);
+        expect(res.runnerWarnings).toHaveLength(0);
     });
 
     it('should get by releaseName', async () => {
@@ -120,7 +120,7 @@ describe('git-get-release-action', () => {
         expect(res.isSuccess).toEqual(true);
         expect(res.commands.outputs.id).toEqual('28737577');
         expect(res.commands.outputs.tag_name).toEqual('1.0.0');
-        expect(res.warnings).toHaveLength(0);
+        expect(res.runnerWarnings).toHaveLength(0);
     });
 
     it('should get by releaseNameRegEx', async () => {
@@ -130,6 +130,6 @@ describe('git-get-release-action', () => {
         expect(res.isSuccess).toEqual(true);
         expect(res.commands.outputs.name).toEqual('searchLimit input');
         expect(res.commands.outputs.tag_name).toEqual('1.1.1');
-        expect(res.warnings).toHaveLength(0);
+        expect(res.runnerWarnings).toHaveLength(0);
     });
 })

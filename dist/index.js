@@ -358,10 +358,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findLatestRelease = void 0;
 const findReleaseByPredicate_1 = __nccwpck_require__(5254);
 const filtering_1 = __nccwpck_require__(7826);
+const NotFoundError_1 = __nccwpck_require__(9248);
 function findLatestRelease(github, repoInfo, filters) {
     return __awaiter(this, void 0, void 0, function* () {
         if (filters.draft === undefined && filters.prerelease === undefined) {
-            return (yield github.rest.repos.getLatestRelease(repoInfo)).data;
+            try {
+                return (yield github.rest.repos.getLatestRelease(repoInfo)).data;
+            }
+            catch (error) {
+                if (error instanceof Error && error.status === 404) {
+                    throw new NotFoundError_1.NotFoundError("latest release not found: " + typeof error);
+                }
+                throw error;
+            }
         }
         return (0, findReleaseByPredicate_1.findReleaseByPredicate)(github, repoInfo, (release) => __awaiter(this, void 0, void 0, function* () { return (0, filtering_1.checkReleaseFilters)(release, filters); }));
     });
