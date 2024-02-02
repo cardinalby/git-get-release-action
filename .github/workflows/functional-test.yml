@@ -9,7 +9,7 @@ jobs:
   functionalSelfTest:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.INTEGRATION_TEST_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 

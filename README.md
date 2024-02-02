@@ -69,7 +69,8 @@ default points to a current repository.
 
 ## Env variables
 
-You should set `GITHUB_TOKEN` env variable to enable action to access GitHub API. See example.
+You should set `GITHUB_TOKEN` env variable to enable action to access GitHub API. 
+For some operations default `github.token` is not enough, you need to pass a personal access token.
 
 ## Outputs
 Values from [API](https://docs.github.com/en/rest/reference/repos#releases) response object:
@@ -98,7 +99,7 @@ Values from [API](https://docs.github.com/en/rest/reference/repos#releases) resp
 ```yaml
 - uses: cardinalby/git-get-release-action@v1
   env:
-    GITHUB_TOKEN: ${{ github.token }}
+    GITHUB_TOKEN: ${{ github.token }}  # or your personal access token
   with:
     tag: '1.2.3'    
 ```
@@ -106,7 +107,7 @@ Values from [API](https://docs.github.com/en/rest/reference/repos#releases) resp
 ```yaml
 - uses: cardinalby/git-get-release-action@v1
   env:
-    GITHUB_TOKEN: ${{ github.token }}
+    GITHUB_TOKEN: ${{ github.token }}  # or your personal access token
   with:
     commitSha: e92acb19de8845ad1f3cb6cfab421ac26002d6b6
     prerelease: false
