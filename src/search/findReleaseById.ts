@@ -16,7 +16,7 @@ export async function findReleaseById(
         })).data;
         return assertReleaseFilters(found, filters);
     } catch (err) {
-        if (err instanceof Error && (err as any).status === 404) {
+        if (err instanceof Error && (err as any).status == 404) {
             throw new NotFoundError(`Release with release id = ${releaseId} not found`);
         }
         throw err;

@@ -480,7 +480,7 @@ function findReleaseById(github, repoInfo, releaseId, filters) {
             return (0, filtering_1.assertReleaseFilters)(found, filters);
         }
         catch (err) {
-            if (err instanceof Error && err.status === 404) {
+            if (err instanceof Error && err.status == 404) {
                 throw new NotFoundError_1.NotFoundError(`Release with release id = ${releaseId} not found`);
             }
             throw err;
@@ -615,7 +615,7 @@ function findReleaseByTag(github, repoInfo, tag, filters) {
             return (0, filtering_1.assertReleaseFilters)(found, filters);
         }
         catch (err) {
-            if (err instanceof Error && err.status === 404) {
+            if (err instanceof Error && err.status == 404) {
                 throw new NotFoundError_1.NotFoundError(`Release for tag = ${tag} not found`);
             }
             throw err;

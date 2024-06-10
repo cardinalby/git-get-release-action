@@ -16,7 +16,7 @@ export async function findReleaseByTag(
         })).data;
         return assertReleaseFilters(found, filters);
     } catch (err) {
-        if (err instanceof Error && (err as any).status === 404) {
+        if (err instanceof Error && (err as any).status == 404) {
             throw new NotFoundError(`Release for tag = ${tag} not found`);
         }
         throw err;
