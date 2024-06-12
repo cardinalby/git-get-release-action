@@ -366,7 +366,7 @@ function findLatestRelease(github, repoInfo, filters) {
                 return (yield github.rest.repos.getLatestRelease(repoInfo)).data;
             }
             catch (error) {
-                if (error instanceof Error && error.status === 404) {
+                if (error instanceof Error && error.status == 404) {
                     throw new NotFoundError_1.NotFoundError("latest release not found: " + typeof error);
                 }
                 throw error;

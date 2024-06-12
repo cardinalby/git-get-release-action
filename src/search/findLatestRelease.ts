@@ -13,7 +13,7 @@ export async function findLatestRelease(
         try {
             return (await github.rest.repos.getLatestRelease(repoInfo)).data;
         } catch (error: any) {
-            if (error instanceof Error && (error as any).status === 404) {
+            if (error instanceof Error && (error as any).status == 404) {
                 throw new NotFoundError("latest release not found: " + typeof error)
             }
             throw error;
