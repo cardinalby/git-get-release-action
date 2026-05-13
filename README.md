@@ -1,12 +1,15 @@
-[![integration-test](https://github.com/cardinalby/git-get-release-action/actions/workflows/integration-test.yml/badge.svg)](https://github.com/cardinalby/git-get-release-action/actions/workflows/integration-test.yml)
-[![functional-test](https://github.com/cardinalby/git-get-release-action/actions/workflows/functional-test.yml/badge.svg)](https://github.com/cardinalby/git-get-release-action/actions/workflows/functional-test.yml)
-[![build-pack](https://github.com/cardinalby/git-get-release-action/actions/workflows/build-pack.yml/badge.svg)](https://github.com/cardinalby/git-get-release-action/actions/workflows/build-pack.yml)
+[![build-pack](https://github.com/toyamagu-2021/git-get-release-action/actions/workflows/build-pack.yml/badge.svg)](https://github.com/toyamagu-2021/git-get-release-action/actions/workflows/build-pack.yml)
 
 # Get GitHub release information 
 
 Allows you to get a release information by release id, tag, commit SHA or get the last release.
 
 If release not found, it finishes with an error.
+
+> [!IMPORTANT]
+> This is a fork of [cardinalby/git-get-release-action](https://github.com/cardinalby/git-get-release-action) to address Node 20 runtime deprecation on GitHub Actions runners and to reduce supply chain risk by switching to pnpm with `minimumReleaseAge`.
+>
+> We won't maintain this fork continuously. You should migrate to a maintained alternative (such as [`gh release view`](https://cli.github.com/manual/gh_release_view) via the `gh` CLI, or [`actions/github-script`](https://github.com/actions/github-script) with the Releases REST API) as soon as possible.
 
 ## Inputs
 

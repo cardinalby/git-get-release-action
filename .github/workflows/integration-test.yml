@@ -1,26 +1,35 @@
-name: "integration-test"
-on:
-  push:
-    branches:
-      - '*'
-  pull_request:
-  workflow_dispatch:
-jobs:
-  buildAndTest:
-    env:
-      PACKED_JS_PATH: 'dist/index.js'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-      - name: Test
-        run: npm run test
-        env:
-          GITHUB_TOKEN: ${{ secrets.INTEGRATION_TEST_TOKEN }}
+# Disabled on this fork:
+# - secrets.INTEGRATION_TEST_TOKEN does not exist on the fork.
+# - tests/integration/action.test.ts expects values pinned to cardinalby/git-get-release-action.
+# Restore (uncomment) only if a fork-side INTEGRATION_TEST_TOKEN secret is provided
+# and the test expectations are kept compatible.
+#
+# name: "integration-test"
+# on:
+#   push:
+#     branches:
+#       - '*'
+#   pull_request:
+#   workflow_dispatch:
+# jobs:
+#   buildAndTest:
+#     env:
+#       PACKED_JS_PATH: 'dist/index.js'
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Install pnpm
+#         uses: pnpm/action-setup@v4
+#       - name: Use Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 24.x
+#           cache: 'pnpm'
+#       - name: Install dependencies
+#         run: pnpm install --frozen-lockfile
+#       - name: Build
+#         run: pnpm run build
+#       - name: Test
+#         run: pnpm test
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.INTEGRATION_TEST_TOKEN }}
