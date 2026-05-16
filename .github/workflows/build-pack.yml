@@ -13,7 +13,7 @@ jobs:
       - name: Extract branch name
         id: extractBranch
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
       - name: Use Node.js
         uses: actions/setup-node@v6
       - name: Install dependencies
@@ -24,7 +24,7 @@ jobs:
         run: npm run pack
       - name: Check packed js changes
         id: packedJsStatus
-        run: echo ::set-output name=changes::$(git status ${{ env.PACKED_JS_PATH }} --porcelain)
+        run: echo "changes=$(git status ${{ env.PACKED_JS_PATH }} --porcelain)" >> $GITHUB_OUTPUT
       - name: Commit packed js
         id: commitPackedJs
         if: steps.packedJsStatus.outputs.changes
